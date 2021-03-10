@@ -7,7 +7,22 @@
 
 #define LOG(x) std::cout << x << std::endl
 
-int loadFile(const char *filename, std::string &src)
+static void GLCleanError()
+{
+	while (glGetError() != GL_NO_ERROR)
+	{
+	}
+}
+
+static void GLPrintErrors()
+{
+	while (GLenum err = glGetError())
+	{
+		std::cout << "[OpenGL Error]: " << err << std::endl;
+	}
+}
+
+static int loadFile(const char *filename, std::string &src)
 {
 	std::ifstream file(filename, std::ios_base::in);
 	if (!file)
@@ -30,7 +45,7 @@ struct ShaderSource
 	std::string FragmentSource;
 };
 
-ShaderSource ParseShader(const char *fname)
+static ShaderSource ParseShader(const char *fname)
 {
 	std::ifstream file(fname);
 	std::string line;
@@ -70,7 +85,7 @@ ShaderSource ParseShader(const char *fname)
 	return source;
 }
 
-unsigned int compileShader(const std::string &src, GLenum type)
+static unsigned int compileShader(const std::string &src, GLenum type)
 {
 	unsigned int sid = glCreateShader(type);
 	const char *source = src.c_str();
@@ -94,7 +109,7 @@ unsigned int compileShader(const std::string &src, GLenum type)
 	return sid;
 }
 
-unsigned int createProgram(const std::string &vertexShader, const std::string &fragmentShader)
+static unsigned int createProgram(const std::string &vertexShader, const std::string &fragmentShader)
 {
 	unsigned int pid = glCreateProgram();
 	unsigned int v_sid = compileShader(vertexShader, GL_VERTEX_SHADER);
@@ -153,16 +168,15 @@ int main(void)
 	}
 
 	float vBuf[] = {
-		-0.5f,-0.5f,
+		-0.5f, -0.5f,
 		0.5f, -0.5f,
 		0.5f, 0.5f,
-		-0.5f, 0.5f,
-	};
+		-0.5f, 0.5f};
 
 	unsigned int iBuf[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
+		0, 1,
+		2, 2,
+		3, 0};
 
 	unsigned int vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
@@ -196,7 +210,9 @@ int main(void)
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		GLCleanError();
+		glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr);
+		GLPrintErrors();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
