@@ -7,6 +7,11 @@
 
 #define LOG(x) std::cout << x << std::endl
 
+#define GLCall(X) \
+	GLPrintErrors();\
+	X;\
+	GLPrintErrors();
+
 static void GLCleanError()
 {
 	while (glGetError() != GL_NO_ERROR)
@@ -210,9 +215,7 @@ int main(void)
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		GLCleanError();
-		glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr);
-		GLPrintErrors();
+		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr));
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
