@@ -7,27 +7,31 @@
 
 #define LOG(x) std::cout << x << std::endl
 
-#define GLCall(X) \
-	GLPrintErrors();\
-	X;\
-	GLPrintErrors();
+#define ASSERT(X) if ((X)) __debugbreak()
 
-static void GLCleanError()
+#define GLCall(X)    \
+	GLCleanErrors(); \
+	X;               \
+	ASSERT(GLPrintErrors(#X, __FILE__, __LINE__))
+
+static void GLCleanErrors()
 {
 	while (glGetError() != GL_NO_ERROR)
 	{
 	}
 }
 
-static void GLPrintErrors()
+static GLenum GLPrintErrors(const char* function, const char* file, long line)
 {
 	while (GLenum err = glGetError())
 	{
-		std::cout << "[OpenGL Error]: " << err << std::endl;
-	}
+		std::cout << "[OpenGL Error]: " << err << " " << function << " " << " at " << file << ":" << line << std::endl;
+		return err;
+	} 
+	return 0;
 }
 
-static int loadFile(const char *filename, std::string &src)
+static int loadFile(const char* filename, std::string& src)
 {
 	std::ifstream file(filename, std::ios_base::in);
 	if (!file)
@@ -39,7 +43,7 @@ static int loadFile(const char *filename, std::string &src)
 	src.reserve((unsigned int)file.tellg());
 	file.seekg(0, std::ios::beg);
 	src.assign((std::istreambuf_iterator<char>(file)),
-			   std::istreambuf_iterator<char>());
+		std::istreambuf_iterator<char>());
 	file.close();
 	return 0;
 }
@@ -50,7 +54,7 @@ struct ShaderSource
 	std::string FragmentSource;
 };
 
-static ShaderSource ParseShader(const char *fname)
+static ShaderSource ParseShader(const char* fname)
 {
 	std::ifstream file(fname);
 	std::string line;
@@ -90,10 +94,10 @@ static ShaderSource ParseShader(const char *fname)
 	return source;
 }
 
-static unsigned int compileShader(const std::string &src, GLenum type)
+static unsigned int compileShader(const std::string& src, GLenum type)
 {
 	unsigned int sid = glCreateShader(type);
-	const char *source = src.c_str();
+	const char* source = src.c_str();
 	glShaderSource(sid, 1, &source, nullptr);
 	glCompileShader(sid);
 
@@ -104,7 +108,7 @@ static unsigned int compileShader(const std::string &src, GLenum type)
 	{
 		int logSize = 0;
 		glGetShaderiv(sid, GL_INFO_LOG_LENGTH, &logSize);
-		char *errMsg = (char *)alloca(logSize);
+		char* errMsg = (char*)alloca(logSize);
 		glGetShaderInfoLog(sid, logSize, &logSize, errMsg);
 		glDeleteShader(sid);
 		std::cout << errMsg << std::endl;
@@ -114,7 +118,7 @@ static unsigned int compileShader(const std::string &src, GLenum type)
 	return sid;
 }
 
-static unsigned int createProgram(const std::string &vertexShader, const std::string &fragmentShader)
+static unsigned int createProgram(const std::string& vertexShader, const std::string& fragmentShader)
 {
 	unsigned int pid = glCreateProgram();
 	unsigned int v_sid = compileShader(vertexShader, GL_VERTEX_SHADER);
@@ -130,7 +134,7 @@ static unsigned int createProgram(const std::string &vertexShader, const std::st
 	{
 		int logSize = 0;
 		glGetProgramiv(pid, GL_INFO_LOG_LENGTH, &logSize);
-		char *errMsg = (char *)alloca(logSize);
+		char* errMsg = (char*)alloca(logSize);
 		glGetProgramInfoLog(pid, logSize, &logSize, errMsg);
 		glDeleteProgram(pid);
 		std::cout << errMsg << std::endl;
@@ -145,7 +149,7 @@ static unsigned int createProgram(const std::string &vertexShader, const std::st
 
 int main(void)
 {
-	GLFWwindow *window;
+	GLFWwindow* window;
 
 	if (!glfwInit())
 	{
@@ -176,12 +180,12 @@ int main(void)
 		-0.5f, -0.5f,
 		0.5f, -0.5f,
 		0.5f, 0.5f,
-		-0.5f, 0.5f};
+		-0.5f, 0.5f };
 
 	unsigned int iBuf[] = {
 		0, 1,
 		2, 2,
-		3, 0};
+		3, 0 };
 
 	unsigned int vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
