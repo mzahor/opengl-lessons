@@ -136,16 +136,20 @@ int main(void)
 		LOG(glGetString(GL_VERSION));
 	}
 
-	float buf[6] = {
+	float buf[] = {
 		-0.5f, -0.5f,
-		0.0f, 0.5f,
 		0.5f, -0.5f,
+		0.5f, 0.5f,
+
+		-0.5f, -0.5f,
+		-0.5f, 0.5f,
+		0.5f, 0.5f,
 	};
 
 	GLuint buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), buf, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), buf, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
@@ -160,7 +164,7 @@ int main(void)
 
 	/*auto shaders = ParseShader("./Basic.shader");
 	auto prog_id = createProgram(shaders.VertexSource, shaders.FragmentSource);*/
-	
+
 	glUseProgram(prog_id);
 
 
@@ -168,7 +172,7 @@ int main(void)
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 3 * 2);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
