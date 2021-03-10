@@ -27,7 +27,7 @@ static GLenum GLPrintErrors(const char* function, const char* file, long line)
 	{
 		std::cout << "[OpenGL Error]: " << err << " " << function << " " << " at " << file << ":" << line << std::endl;
 		return err;
-	} 
+	}
 	return 0;
 }
 
@@ -219,7 +219,7 @@ int main(void)
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr));
+		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
