@@ -151,10 +151,10 @@ int main(void)
 
 	int err = 0;
 	std::string vertexShader;
-	err = loadFile(".\\VertexShader.glsl", vertexShader);
+	err = loadFile("./VertexShader.glsl", vertexShader);
 	if (err) return err;
 	std::string fragmentShader;
-	err = loadFile(".\\FragmentShader.glsl", fragmentShader);
+	err = loadFile("./FragmentShader.glsl", fragmentShader);
 	if (err) return err;
 	auto prog_id = createProgram(vertexShader, fragmentShader);
 
