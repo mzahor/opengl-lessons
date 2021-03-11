@@ -5,6 +5,8 @@
 #include <string>
 #include <sstream>
 
+using uint = unsigned int;
+
 #define LOG(x) std::cout << x << std::endl
 
 #define ASSERT(X) \
@@ -43,7 +45,7 @@ static int loadFile(const char *filename, std::string &src)
 		return 1;
 	}
 	file.seekg(0, std::ios::end);
-	src.reserve((unsigned int)file.tellg());
+	src.reserve((uint)file.tellg());
 	file.seekg(0, std::ios::beg);
 	src.assign((std::istreambuf_iterator<char>(file)),
 			   std::istreambuf_iterator<char>());
@@ -97,9 +99,9 @@ static ShaderSource ParseShader(const char *fname)
 	return source;
 }
 
-static unsigned int compileShader(const std::string &src, GLenum type)
+static uint compileShader(const std::string &src, GLenum type)
 {
-	unsigned int sid = glCreateShader(type);
+	uint sid = glCreateShader(type);
 	const char *source = src.c_str();
 	glShaderSource(sid, 1, &source, nullptr);
 	glCompileShader(sid);
@@ -121,11 +123,11 @@ static unsigned int compileShader(const std::string &src, GLenum type)
 	return sid;
 }
 
-static unsigned int createProgram(const std::string &vertexShader, const std::string &fragmentShader)
+static uint createProgram(const std::string &vertexShader, const std::string &fragmentShader)
 {
-	unsigned int pid = glCreateProgram();
-	unsigned int v_sid = compileShader(vertexShader, GL_VERTEX_SHADER);
-	unsigned int f_sid = compileShader(fragmentShader, GL_FRAGMENT_SHADER);
+	uint pid = glCreateProgram();
+	uint v_sid = compileShader(vertexShader, GL_VERTEX_SHADER);
+	uint f_sid = compileShader(fragmentShader, GL_FRAGMENT_SHADER);
 	glAttachShader(pid, v_sid);
 	glAttachShader(pid, f_sid);
 	glLinkProgram(pid);
@@ -150,7 +152,7 @@ static unsigned int createProgram(const std::string &vertexShader, const std::st
 	return pid;
 }
 
-unsigned int createProgramImpl()
+uint createProgramImpl()
 {
 	int err = 0;
 	std::string vertexShader;
@@ -203,12 +205,12 @@ int main(void)
 		0.5f, 0.5f,
 		-0.5f, 0.5f};
 
-	unsigned int iBuf[] = {
+	uint iBuf[] = {
 		0, 1,
 		2, 2,
 		3, 0};
 
-	unsigned int vertexBuffer;
+	uint vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), vBuf, GL_STATIC_DRAW);
@@ -216,12 +218,12 @@ int main(void)
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
-	unsigned int ibo;
+	uint ibo;
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), iBuf, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint), iBuf, GL_STATIC_DRAW);
 
-	unsigned int prog_id = createProgramImpl();
+	uint prog_id = createProgramImpl();
 	int u_color = glGetUniformLocation(prog_id, "u_color");
 	glUseProgram(prog_id);
 
