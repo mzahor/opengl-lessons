@@ -147,6 +147,23 @@ static unsigned int createProgram(const std::string& vertexShader, const std::st
 	return pid;
 }
 
+unsigned int createProgramImpl() {
+	int err = 0;
+	std::string vertexShader;
+	err = loadFile("./VertexShader.glsl", vertexShader);
+	if (err)
+		return err;
+	std::string fragmentShader;
+	err = loadFile("./FragmentShader.glsl", fragmentShader);
+	if (err)
+		return err;
+	auto id = createProgram(vertexShader, fragmentShader);
+
+	// auto shaders = ParseShader("./Basic.shader");
+	// auto id = createProgram(shaders.VertexSource, shaders.FragmentSource);
+	return id;
+}
+
 int main(void)
 {
 	GLFWwindow* window;
@@ -200,25 +217,26 @@ int main(void)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), iBuf, GL_STATIC_DRAW);
 
-	int err = 0;
-	std::string vertexShader;
-	err = loadFile("./VertexShader.glsl", vertexShader);
-	if (err)
-		return err;
-	std::string fragmentShader;
-	err = loadFile("./FragmentShader.glsl", fragmentShader);
-	if (err)
-		return err;
-	auto prog_id = createProgram(vertexShader, fragmentShader);
 
-	// auto shaders = ParseShader("./Basic.shader");
-	// auto prog_id = createProgram(shaders.VertexSource, shaders.FragmentSource);
-
+	unsigned int prog_id = createProgramImpl();
+	int u_color = glGetUniformLocation(prog_id, "u_color");
 	glUseProgram(prog_id);
+
+	float color[] = {0.0f, 0.3f, 0.7f, 1.0f};
+	float inc = 0.05f;
+
+	glfwSwapInterval(1);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		if (color[0] > 1.0f || color[0] < 0.0) {
+			inc = -inc;
+		}
+		color[0] += inc;
+
+		glUniform4fv(u_color, 1, color);
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 		glfwSwapBuffers(window);
 		glfwPollEvents();
