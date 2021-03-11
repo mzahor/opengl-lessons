@@ -4,37 +4,10 @@
 #include <GLFW/glfw3.h>
 #include <string>
 #include <sstream>
-
-using uint = unsigned int;
+#include "Renderer.h"
+#include "VertexBuffer.h"
 
 #define LOG(x) std::cout << x << std::endl
-
-#define ASSERT(X) \
-	if ((X))      \
-	__debugbreak()
-
-#define GLCall(X)    \
-	GLCleanErrors(); \
-	X;               \
-	ASSERT(GLPrintErrors(#X, __FILE__, __LINE__))
-
-static void GLCleanErrors()
-{
-	while (glGetError() != GL_NO_ERROR)
-	{
-	}
-}
-
-static GLenum GLPrintErrors(const char *function, const char *file, long line)
-{
-	while (GLenum err = glGetError())
-	{
-		std::cout << "[OpenGL Error]: " << err << " " << function << " "
-				  << " at " << file << ":" << line << std::endl;
-		return err;
-	}
-	return 0;
-}
 
 static int loadFile(const char *filename, std::string &src)
 {
@@ -208,72 +181,69 @@ int main(void)
 	{
 		LOG(glGetString(GL_VERSION));
 	}
-
-	float vBuf[] = {
-		-0.5f, -0.5f,
-		0.5f, -0.5f,
-		0.5f, 0.5f,
-		-0.5f, 0.5f};
-
-	uint iBuf[] = {
-		0, 1,
-		2, 2,
-		3, 0};
-
-	uint vao;
-	GLCall(glGenVertexArrays(1, &vao));
-	GLCall(glBindVertexArray(vao));
-
-	uint vbo;
-	GLCall(glGenBuffers(1, &vbo));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), vBuf, GL_STATIC_DRAW));
-
-	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
-
-	uint ibo;
-	GLCall(glGenBuffers(1, &ibo));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint), iBuf, GL_STATIC_DRAW));
-
-	uint prog_id = createProgramImpl();
-	int u_color = glGetUniformLocation(prog_id, "u_color");
-	GLCall(glUseProgram(prog_id));
-
-	float color[] = {0.0f, 0.3f, 0.7f, 1.0f};
-	float inc[] = {0.05f, 0.03f, 0.07f};
-
-	glfwSwapInterval(1);
-
-	GLCall(glUseProgram(0));
-	GLCall(glBindVertexArray(0));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-	while (!glfwWindowShouldClose(window))
 	{
-		GLCall(glClear(GL_COLOR_BUFFER_BIT));
+		float vBuf[] = {
+			-0.5f, -0.5f,
+			0.5f, -0.5f,
+			0.5f, 0.5f,
+			-0.5f, 0.5f};
 
-		for (int i = 0; i < 3; i++)
-		{
-			if (color[i] > 1.0f || color[i] < 0.0)
-			{
-				inc[i] = -inc[i];
-			}
-			color[i] += inc[i];
-		}
+		uint iBuf[] = {
+			0, 1,
+			2, 2,
+			3, 0};
 
-		GLCall(glUseProgram(prog_id));
-		GLCall(glUniform4fv(u_color, 1, color));
-
+		uint vao;
+		GLCall(glGenVertexArrays(1, &vao));
 		GLCall(glBindVertexArray(vao));
 
-		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-		GLCall(glfwSwapBuffers(window));
-		GLCall(glfwPollEvents());
-	}
+		VertexBuffer vbo(vBuf, 4 * 2 * sizeof(float));
 
+		GLCall(glEnableVertexAttribArray(0));
+		GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
+
+		uint ibo;
+		GLCall(glGenBuffers(1, &ibo));
+		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+		GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint), iBuf, GL_STATIC_DRAW));
+
+		uint prog_id = createProgramImpl();
+		int u_color = glGetUniformLocation(prog_id, "u_color");
+		GLCall(glUseProgram(prog_id));
+
+		float color[] = {0.0f, 0.3f, 0.7f, 1.0f};
+		float inc[] = {0.05f, 0.03f, 0.07f};
+
+		glfwSwapInterval(1);
+
+		GLCall(glUseProgram(0));
+		GLCall(glBindVertexArray(0));
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+		while (!glfwWindowShouldClose(window))
+		{
+			GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
+			for (int i = 0; i < 3; i++)
+			{
+				if (color[i] > 1.0f || color[i] < 0.0)
+				{
+					inc[i] = -inc[i];
+				}
+				color[i] += inc[i];
+			}
+
+			GLCall(glUseProgram(prog_id));
+			GLCall(glUniform4fv(u_color, 1, color));
+
+			GLCall(glBindVertexArray(vao));
+
+			GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+			GLCall(glfwSwapBuffers(window));
+			GLCall(glfwPollEvents());
+		}
+	}
 	glfwTerminate();
 	return 0;
 }
