@@ -7,7 +7,9 @@
 
 #define LOG(x) std::cout << x << std::endl
 
-#define ASSERT(X) if ((X)) __debugbreak()
+#define ASSERT(X) \
+	if ((X))      \
+	__debugbreak()
 
 #define GLCall(X)    \
 	GLCleanErrors(); \
@@ -21,17 +23,18 @@ static void GLCleanErrors()
 	}
 }
 
-static GLenum GLPrintErrors(const char* function, const char* file, long line)
+static GLenum GLPrintErrors(const char *function, const char *file, long line)
 {
 	while (GLenum err = glGetError())
 	{
-		std::cout << "[OpenGL Error]: " << err << " " << function << " " << " at " << file << ":" << line << std::endl;
+		std::cout << "[OpenGL Error]: " << err << " " << function << " "
+				  << " at " << file << ":" << line << std::endl;
 		return err;
 	}
 	return 0;
 }
 
-static int loadFile(const char* filename, std::string& src)
+static int loadFile(const char *filename, std::string &src)
 {
 	std::ifstream file(filename, std::ios_base::in);
 	if (!file)
@@ -43,7 +46,7 @@ static int loadFile(const char* filename, std::string& src)
 	src.reserve((unsigned int)file.tellg());
 	file.seekg(0, std::ios::beg);
 	src.assign((std::istreambuf_iterator<char>(file)),
-		std::istreambuf_iterator<char>());
+			   std::istreambuf_iterator<char>());
 	file.close();
 	return 0;
 }
@@ -54,7 +57,7 @@ struct ShaderSource
 	std::string FragmentSource;
 };
 
-static ShaderSource ParseShader(const char* fname)
+static ShaderSource ParseShader(const char *fname)
 {
 	std::ifstream file(fname);
 	std::string line;
@@ -94,10 +97,10 @@ static ShaderSource ParseShader(const char* fname)
 	return source;
 }
 
-static unsigned int compileShader(const std::string& src, GLenum type)
+static unsigned int compileShader(const std::string &src, GLenum type)
 {
 	unsigned int sid = glCreateShader(type);
-	const char* source = src.c_str();
+	const char *source = src.c_str();
 	glShaderSource(sid, 1, &source, nullptr);
 	glCompileShader(sid);
 
@@ -108,7 +111,7 @@ static unsigned int compileShader(const std::string& src, GLenum type)
 	{
 		int logSize = 0;
 		glGetShaderiv(sid, GL_INFO_LOG_LENGTH, &logSize);
-		char* errMsg = (char*)alloca(logSize);
+		char *errMsg = (char *)alloca(logSize);
 		glGetShaderInfoLog(sid, logSize, &logSize, errMsg);
 		glDeleteShader(sid);
 		std::cout << errMsg << std::endl;
@@ -118,7 +121,7 @@ static unsigned int compileShader(const std::string& src, GLenum type)
 	return sid;
 }
 
-static unsigned int createProgram(const std::string& vertexShader, const std::string& fragmentShader)
+static unsigned int createProgram(const std::string &vertexShader, const std::string &fragmentShader)
 {
 	unsigned int pid = glCreateProgram();
 	unsigned int v_sid = compileShader(vertexShader, GL_VERTEX_SHADER);
@@ -134,7 +137,7 @@ static unsigned int createProgram(const std::string& vertexShader, const std::st
 	{
 		int logSize = 0;
 		glGetProgramiv(pid, GL_INFO_LOG_LENGTH, &logSize);
-		char* errMsg = (char*)alloca(logSize);
+		char *errMsg = (char *)alloca(logSize);
 		glGetProgramInfoLog(pid, logSize, &logSize, errMsg);
 		glDeleteProgram(pid);
 		std::cout << errMsg << std::endl;
@@ -147,7 +150,8 @@ static unsigned int createProgram(const std::string& vertexShader, const std::st
 	return pid;
 }
 
-unsigned int createProgramImpl() {
+unsigned int createProgramImpl()
+{
 	int err = 0;
 	std::string vertexShader;
 	err = loadFile("./VertexShader.glsl", vertexShader);
@@ -166,7 +170,7 @@ unsigned int createProgramImpl() {
 
 int main(void)
 {
-	GLFWwindow* window;
+	GLFWwindow *window;
 
 	if (!glfwInit())
 	{
@@ -197,12 +201,12 @@ int main(void)
 		-0.5f, -0.5f,
 		0.5f, -0.5f,
 		0.5f, 0.5f,
-		-0.5f, 0.5f };
+		-0.5f, 0.5f};
 
 	unsigned int iBuf[] = {
 		0, 1,
 		2, 2,
-		3, 0 };
+		3, 0};
 
 	unsigned int vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
@@ -217,7 +221,6 @@ int main(void)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), iBuf, GL_STATIC_DRAW);
 
-
 	unsigned int prog_id = createProgramImpl();
 	int u_color = glGetUniformLocation(prog_id, "u_color");
 	glUseProgram(prog_id);
@@ -231,7 +234,8 @@ int main(void)
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		if (color[0] > 1.0f || color[0] < 0.0) {
+		if (color[0] > 1.0f || color[0] < 0.0)
+		{
 			inc = -inc;
 		}
 		color[0] += inc;
