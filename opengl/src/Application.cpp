@@ -170,15 +170,25 @@ uint createProgramImpl()
 	return id;
 }
 
+static void glfwError(int id, const char *description)
+{
+	std::cout << "GLFW init error: " << description << std::endl;
+}
+
 int main(void)
 {
 	GLFWwindow *window;
 
+	glfwSetErrorCallback(&glfwError);
 	if (!glfwInit())
 	{
 		LOG("Failed to init glfw");
 		return -1;
 	}
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
 	if (!window)
@@ -210,31 +220,40 @@ int main(void)
 		2, 2,
 		3, 0};
 
-	uint vertexBuffer;
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), vBuf, GL_STATIC_DRAW);
+	uint vao;
+	GLCall(glGenVertexArrays(1, &vao));
+	GLCall(glBindVertexArray(vao));
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-	glEnableVertexAttribArray(0);
+	uint vbo;
+	GLCall(glGenBuffers(1, &vbo));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), vBuf, GL_STATIC_DRAW));
+
+	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
 
 	uint ibo;
-	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint), iBuf, GL_STATIC_DRAW);
+	GLCall(glGenBuffers(1, &ibo));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint), iBuf, GL_STATIC_DRAW));
 
 	uint prog_id = createProgramImpl();
 	int u_color = glGetUniformLocation(prog_id, "u_color");
-	glUseProgram(prog_id);
+	GLCall(glUseProgram(prog_id));
 
 	float color[] = {0.0f, 0.3f, 0.7f, 1.0f};
 	float inc[] = {0.05f, 0.03f, 0.07f};
 
 	glfwSwapInterval(1);
 
+	GLCall(glUseProgram(0));
+	GLCall(glBindVertexArray(0));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
 	while (!glfwWindowShouldClose(window))
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -245,10 +264,14 @@ int main(void)
 			color[i] += inc[i];
 		}
 
-		glUniform4fv(u_color, 1, color);
+		GLCall(glUseProgram(prog_id));
+		GLCall(glUniform4fv(u_color, 1, color));
+
+		GLCall(glBindVertexArray(vao));
+
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		GLCall(glfwSwapBuffers(window));
+		GLCall(glfwPollEvents());
 	}
 
 	glfwTerminate();
