@@ -228,7 +228,7 @@ int main(void)
 	glUseProgram(prog_id);
 
 	float color[] = {0.0f, 0.3f, 0.7f, 1.0f};
-	float inc = 0.05f;
+	float inc[] = {0.05f, 0.03f, 0.07f};
 
 	glfwSwapInterval(1);
 
@@ -236,11 +236,14 @@ int main(void)
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		if (color[0] > 1.0f || color[0] < 0.0)
+		for (int i = 0; i < 3; i++)
 		{
-			inc = -inc;
+			if (color[i] > 1.0f || color[i] < 0.0)
+			{
+				inc[i] = -inc[i];
+			}
+			color[i] += inc[i];
 		}
-		color[0] += inc;
 
 		glUniform4fv(u_color, 1, color);
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
