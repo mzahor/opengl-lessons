@@ -6,6 +6,7 @@
 #include <sstream>
 #include "Renderer.h"
 #include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 #define LOG(x) std::cout << x << std::endl
 
@@ -202,10 +203,7 @@ int main(void)
 		GLCall(glEnableVertexAttribArray(0));
 		GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
 
-		uint ibo;
-		GLCall(glGenBuffers(1, &ibo));
-		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-		GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint), iBuf, GL_STATIC_DRAW));
+		IndexBuffer ibo(iBuf, 6 * sizeof(uint));
 
 		uint prog_id = createProgramImpl();
 		int u_color = glGetUniformLocation(prog_id, "u_color");
