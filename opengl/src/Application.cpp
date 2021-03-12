@@ -203,7 +203,7 @@ int main(void)
 		GLCall(glEnableVertexAttribArray(0));
 		GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
 
-		IndexBuffer ibo(iBuf, 6 * sizeof(uint));
+		IndexBuffer ibo(iBuf, 6);
 
 		uint prog_id = createProgramImpl();
 		int u_color = glGetUniformLocation(prog_id, "u_color");
