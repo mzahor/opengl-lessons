@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
-#include "Renderer.h"
+#include "glutils.h"
 
 struct ShaderSource
 {
@@ -27,7 +27,6 @@ public:
 
 private:
     uint CreateProgram(const std::string &vertexShader, const std::string &fragmentShader);
-    uint LoadAndCreateProgram();
     uint CompileShader(const std::string &src, GLenum type);
     ShaderSource ParseShader(const std::string &fname);
     int GetUniformLocation(const std::string &name);

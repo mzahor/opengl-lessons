@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "Renderer.h"
+#include "glutils.h"
 
 struct VertexBufferElement
 {

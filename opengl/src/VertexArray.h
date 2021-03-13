@@ -10,6 +10,6 @@ public:
     VertexArray();
     ~VertexArray();
     void AddBuffer(const VertexBuffer& vbo, const VertexBufferLayout& layout);
-    const void Bind();
-    const void Unbind();
+    const void Bind() const;
+    const void Unbind() const;
 };

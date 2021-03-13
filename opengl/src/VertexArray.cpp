@@ -26,12 +26,12 @@ void VertexArray::AddBuffer(const VertexBuffer &vbo, const VertexBufferLayout &l
     }
 }
 
-const void VertexArray::Bind()
+const void VertexArray::Bind() const
 {
     GLCall(glBindVertexArray(m_RendererId));
 }
 
-const void VertexArray::Unbind()
+const void VertexArray::Unbind() const
 {
     GLCall(glBindVertexArray(0));
 }

@@ -4,9 +4,10 @@
 #include <GLFW/glfw3.h>
 #include <string>
 #include <sstream>
+#include "glutils.h"
 #include "Renderer.h"
-#include "VertexBuffer.h"
 #include "VertexArray.h"
+#include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
 
@@ -65,31 +66,22 @@ int main(void)
 
 
 		VertexArray vao;
-
 		VertexBuffer vbo(vBuf, 4 * 2 * sizeof(float));
-
 		VertexBufferLayout layout;
 		layout.Push<float>(2);
-
 		vao.AddBuffer(vbo, layout);
-
 		IndexBuffer ibo(iBuf, 6);
-
 		Shader shader("./Basic.shader");
+		Renderer renderer;
 
 		float color[] = {0.0f, 0.3f, 0.7f, 1.0f};
 		float inc[] = {0.05f, 0.03f, 0.07f};
 
 		glfwSwapInterval(1);
 
-		shader.Unbind();
-		vao.Unbind();
-		vbo.Unbind();
-		ibo.Unbind();
-
 		while (!glfwWindowShouldClose(window))
 		{
-			GLCall(glClear(GL_COLOR_BUFFER_BIT));
+			renderer.Clear();
 
 			for (int i = 0; i < 3; i++)
 			{
@@ -102,9 +94,9 @@ int main(void)
 
 			shader.Bind();
 			shader.SetUniform4f("u_color", color[0], color[1], color[2], color[3]);
-			vao.Bind();
 
-			GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+			renderer.Draw(vao, ibo, shader);
+
 			GLCall(glfwSwapBuffers(window));
 			GLCall(glfwPollEvents());
 		}
