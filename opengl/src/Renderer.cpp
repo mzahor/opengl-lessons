@@ -10,7 +10,7 @@ void GLCleanErrors()
 
 GLenum GLPrintErrors(const char *function, const char *file, long line)
 {
-	while (GLenum err = glGetError())
+	while (const GLenum err = glGetError())
 	{
 		std::cout << "[OpenGL Error]: " << err << " " << function << " "
 				  << " at " << file << ":" << line << std::endl;
