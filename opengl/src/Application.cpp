@@ -10,6 +10,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #define LOG(x) std::cout << x << std::endl
 
@@ -54,47 +55,36 @@ int main(void)
 
 	{
 		float vBuf[] = {
-			-0.5f, -0.5f,
-			0.5f, -0.5f,
-			0.5f, 0.5f,
-			-0.5f, 0.5f};
+			-0.5f, -0.5f, 0.0f, 0.0f,
+			0.5f, -0.5f, 1.0f, 0.0f,
+			0.5f, 0.5f, 1.0f, 1.0f,
+			-0.5f, 0.5f, 0.0f, 1.0f};
 
 		uint iBuf[] = {
 			0, 1,
 			2, 2,
 			3, 0};
 
-
 		VertexArray vao;
-		VertexBuffer vbo(vBuf, 4 * 2 * sizeof(float));
+		VertexBuffer vbo(vBuf, 4 * 4 * sizeof(float));
 		VertexBufferLayout layout;
+		layout.Push<float>(2);
 		layout.Push<float>(2);
 		vao.AddBuffer(vbo, layout);
 		IndexBuffer ibo(iBuf, 6);
 		Shader shader("./Basic.shader");
+		Texture texture("./texture.png");
 		Renderer renderer;
 
-		float color[] = {0.0f, 0.3f, 0.7f, 1.0f};
-		float inc[] = {0.05f, 0.03f, 0.07f};
+		texture.Bind(0);
+		shader.Bind();
+		shader.SetUniform1i("u_Texture", 0);
 
 		glfwSwapInterval(1);
 
 		while (!glfwWindowShouldClose(window))
 		{
 			renderer.Clear();
-
-			for (int i = 0; i < 3; i++)
-			{
-				if (color[i] > 1.0f || color[i] < 0.0)
-				{
-					inc[i] = -inc[i];
-				}
-				color[i] += inc[i];
-			}
-
-			shader.Bind();
-			shader.SetUniform4f("u_color", color[0], color[1], color[2], color[3]);
-
 			renderer.Draw(vao, ibo, shader);
 
 			GLCall(glfwSwapBuffers(window));
