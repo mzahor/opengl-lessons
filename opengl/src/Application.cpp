@@ -12,16 +12,19 @@
 #include "Shader.h"
 #include "Texture.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
 #define LOG(x) std::cout << x << std::endl
 
-static void glfwError(int id, const char *description)
+static void glfwError(int id, const char* description)
 {
 	std::cout << "GLFW init error: " << description << std::endl;
 }
 
 int main(void)
 {
-	GLFWwindow *window;
+	GLFWwindow* window;
 
 	glfwSetErrorCallback(&glfwError);
 	if (!glfwInit())
@@ -58,12 +61,17 @@ int main(void)
 			-0.5f, -0.5f, 0.0f, 0.0f,
 			0.5f, -0.5f, 1.0f, 0.0f,
 			0.5f, 0.5f, 1.0f, 1.0f,
-			-0.5f, 0.5f, 0.0f, 1.0f};
+			-0.5f, 0.5f, 0.0f, 1.0f };
 
 		uint iBuf[] = {
 			0, 1,
 			2, 2,
-			3, 0};
+			3, 0 };
+
+		glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+
+		GLCall(glEnable(GL_BLEND));
+		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
 		VertexArray vao;
 		VertexBuffer vbo(vBuf, 4 * 4 * sizeof(float));
@@ -73,12 +81,13 @@ int main(void)
 		vao.AddBuffer(vbo, layout);
 		IndexBuffer ibo(iBuf, 6);
 		Shader shader("./Basic.shader");
-		Texture texture("./texture.png");
+		Texture texture("./cherno.png");
 		Renderer renderer;
 
 		texture.Bind(0);
 		shader.Bind();
 		shader.SetUniform1i("u_Texture", 0);
+		shader.SetUniformMat4f("u_MVP", proj);
 
 		glfwSwapInterval(1);
 

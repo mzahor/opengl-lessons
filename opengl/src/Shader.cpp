@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include "Shader.h"
+#include "glm/glm.hpp"
 
 Shader::Shader(const std::string &filepath) : m_ShaderPath(filepath), m_RendererId(0)
 {
@@ -34,6 +35,12 @@ void Shader::SetUniform1i(const std::string &name, int value)
 {
     int location = GetUniformLocation(name);
     GLCall(glUniform1i(location, value));
+}
+
+void Shader::SetUniformMat4f(const std::string &name, const glm::mat4 matrix)
+{
+    int location = GetUniformLocation(name);
+    GLCall(glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]));
 }
 
 int Shader::GetUniformLocation(const std::string &name)

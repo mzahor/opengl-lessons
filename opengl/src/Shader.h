@@ -2,6 +2,7 @@
 #include <string>
 #include <unordered_map>
 #include "glutils.h"
+#include "glm/glm.hpp"
 
 struct ShaderSource
 {
@@ -22,6 +23,7 @@ public:
 
     void SetUniform1i(const std::string& name, int value);
     void SetUniform4f(const std::string& name, float v1, float v2, float v3, float v4);
+    void SetUniformMat4f(const std::string &name, const glm::mat4 matrix);
 
     void Bind() const;
     void Unbind() const;
