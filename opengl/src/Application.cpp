@@ -17,14 +17,14 @@
 
 #define LOG(x) std::cout << x << std::endl
 
-static void glfwError(int id, const char* description)
+static void glfwError(int id, const char *description)
 {
 	std::cout << "GLFW init error: " << description << std::endl;
 }
 
 int main(void)
 {
-	GLFWwindow* window;
+	GLFWwindow *window;
 
 	glfwSetErrorCallback(&glfwError);
 	if (!glfwInit())
@@ -58,17 +58,20 @@ int main(void)
 
 	{
 		float vBuf[] = {
-			-0.5f, -0.5f, 0.0f, 0.0f,
-			0.5f, -0.5f, 1.0f, 0.0f,
-			0.5f, 0.5f, 1.0f, 1.0f,
-			-0.5f, 0.5f, 0.0f, 1.0f };
+			-50.0f, -50.0f, 0.0f, 0.0f,
+			50.0f, -50.0f, 1.0f, 0.0f,
+			50.0f, 50.0f, 1.0f, 1.0f,
+			-50.0f, 50.0f, 0.0f, 1.0f};
 
 		uint iBuf[] = {
 			0, 1,
 			2, 2,
-			3, 0 };
+			3, 0};
 
-		glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+		glm::mat4 proj = glm::ortho(-200.0f, 200.0f, -150.0f, 150.0f, -1.0f, 1.0f);
+		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 50.0f, 0.0f));
+		glm::mat4 mvp = proj * view * model;
 
 		GLCall(glEnable(GL_BLEND));
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -87,7 +90,7 @@ int main(void)
 		texture.Bind(0);
 		shader.Bind();
 		shader.SetUniform1i("u_Texture", 0);
-		shader.SetUniformMat4f("u_MVP", proj);
+		shader.SetUniformMat4f("u_MVP", mvp);
 
 		glfwSwapInterval(1);
 
