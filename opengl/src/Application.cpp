@@ -63,9 +63,9 @@ int main(void)
 	{
 		float vBuf[] = {
 			-50.0f, -50.0f, 0.0f, 0.0f,
-			50.0f, -50.0f, 1.0f, 0.0f,
-			50.0f, 50.0f, 1.0f, 1.0f,
-			-50.0f, 50.0f, 0.0f, 1.0f};
+			+50.0f, -50.0f, 1.0f, 0.0f,
+			+50.0f, +50.0f, 1.0f, 1.0f,
+			-50.0f, +50.0f, 0.0f, 1.0f};
 
 		uint iBuf[] = {
 			0, 1,
@@ -74,7 +74,8 @@ int main(void)
 
 		glm::mat4 proj = glm::ortho(-200.0f, 200.0f, -150.0f, 150.0f, -1.0f, 1.0f);
 		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
-		glm::vec3 pos(0.0f, 50.0f, 0.0f);
+		glm::vec3 translation1(0.0f, 50.0f, 0.0f);
+		glm::vec3 translation2(0.0f, 100.0f, 0.0f);
 
 		GLCall(glEnable(GL_BLEND));
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -114,18 +115,30 @@ int main(void)
 
 				ImGui::Begin("Transform");
 
-				ImGui::SliderFloat("X position", &pos.x, -200.0f, 200.0f);
-				ImGui::SliderFloat("Y position", &pos.y, -150.0f, 150.0f);
+				ImGui::SliderFloat("X position A", &translation1.x, -200.0f, 200.0f);
+				ImGui::SliderFloat("Y position A", &translation1.y, -150.0f, 150.0f);
+
+				ImGui::SliderFloat("X position B", &translation2.x, -200.0f, 200.0f);
+				ImGui::SliderFloat("Y position B", &translation2.y, -150.0f, 150.0f);
 
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 				ImGui::End();
 			}
 
-			glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
-			glm::mat4 mvp = proj * view * model;
-			shader.SetUniformMat4f("u_MVP", mvp);
+			{
+				glm::mat4 model = glm::translate(glm::mat4(1.0f), translation1);
+				glm::mat4 mvp = proj * view * model;
+				shader.SetUniformMat4f("u_MVP", mvp);
+				renderer.Draw(vao, ibo, shader);
+			}
 
-			renderer.Draw(vao, ibo, shader);
+			{
+				glm::mat4 model = glm::translate(glm::mat4(1.0f), translation2);
+				glm::mat4 mvp = proj * view * model;
+				shader.SetUniformMat4f("u_MVP", mvp);
+				renderer.Draw(vao, ibo, shader);
+			}
+
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
